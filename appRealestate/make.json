@@ -1,0 +1,12 @@
+{
+    "property_title": "title property",
+    "purpose": null,
+    "location": {
+        "type": "Point",
+        "coordinates": [
+            0.10546982286893,
+            13.530655177903364
+        ]
+    },
+"owner":1
+}

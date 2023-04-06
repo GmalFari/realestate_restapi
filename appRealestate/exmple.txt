@@ -1,0 +1,6 @@
+permissions
+who will show property [any one]
+who will add property [any permissions user]
+who will update , delete property [who was post property or admin user]
+
+
