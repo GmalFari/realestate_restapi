@@ -28,7 +28,8 @@ class RetrieveuserView(APIView):
         user = request.user
         user = UserSerializer(user)
         return Response(user.data,status=status.HTTP_200_OK)
-# class EmailTokenObtainPairView(TokenObtainPairView):
+# class EmailTo
+# kenObtainPairView(TokenObtainPairView):
 #     seriali
 # zer_class = CustomTokenObtainPairSerializer
 
