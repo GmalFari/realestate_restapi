@@ -1,0 +1,43 @@
+import requests
+import multiprocessing
+import random
+
+url = "https://bayut.p.rapidapi.com/properties/list"
+
+querystring = {"locationExternalIDs":"5002,6020","purpose":"for-rent","hitsPerPage":"25","page":"0","lang":"en","sort":"city-level-score","rentFrequency":"monthly","categoryExternalID":"4"}
+
+headers = {
+	"X-RapidAPI-Key": "6cb10cae22mshe83ac21e4eb1de3p1897c1jsn0b3893d5488f",
+	"X-RapidAPI-Host": "bayut.p.rapidapi.com"
+}
+response = requests.get(url, headers=headers, params=querystring)
+
+data = response.json()
+image_urls = []
+
+for i in data['hits']:
+    image_urls.append( i['coverPhoto']['url'])
+
+print(image_urls)
+
+
+def download_image(image_url):
+    print('dowloaded')
+    response = requests.get(image_url)
+    with open(f"{random.randint(2,500000)}.jpeg", "wb") as f:
+        f.write(response.content)
+
+if __name__ == "__main__":
+    # Create a list of processes
+    processes = []
+    for image_url in image_urls:
+        # Create a process to download the image
+        process = multiprocessing.Process(target=download_image, args=(image_url,))
+        # Start the process
+        process.start()
+        # Add the process to the list
+        processes.append(process)
+
+    # Wait for all processes to finish
+    for process in processes:
+        process.join()

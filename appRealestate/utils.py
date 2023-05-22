@@ -1,7 +1,6 @@
 
 import random
 from django.utils.text import slugify
-
 def slugify_instance_company(instance,save=False,new_slug=None):
     if new_slug is not None:
         slug = new_slug
@@ -17,8 +16,7 @@ def slugify_instance_company(instance,save=False,new_slug=None):
     if save:
         instance.save()
     return instance
-
 def path_file_name(instance, filename):
-    return '/'.join(filter(None, (str(instance.user.id), filename)))
+    return '/'.join(filter(None, (str(random.randint(300_000,500_000)), filename)))
 def img_file_name(instance, filename):
-    return '/'.join(filter(None,(str(instance.roperty.user.id), str(instance.realstate.id), filename)))
+    return '/'.join(filter(None,(str(random.randint(300_000,500_000)), str(instance.id), filename)))

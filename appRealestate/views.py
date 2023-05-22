@@ -7,6 +7,7 @@ from rest_framework.decorators import api_view,permission_classes
 from rest_framework.permissions import IsAuthenticated
 from django.contrib.gis.geos import GEOSGeometry
 from rest_framework_gis.pagination import GeoJsonPagination
+from rest_framework.parsers import MultiPartParser, FormParser,FileUploadParser,JSONParser
 
 import json
 from .models import( 
@@ -54,32 +55,37 @@ class PropertyListView(generics.ListCreateAPIView):
     # throttle_classes = [AnonRateThrottle,UserRateThrottle]
     serializer_class = PropertySerializer 
     # pagination_class = GeoJsonPagination
-
-    authentication_classes = [
-                            # authentication.SessionAuthentication,
-                              authentication.TokenAuthentication
-                            ]
-    permission_classes = [permissions.IsAuthenticatedOrReadOnly]
-
+    permission_classes = (permissions.IsAuthenticatedOrReadOnly,)
+    filter_fields = ['property_title','purpose', 'property_price']
+    search_fields = ['property_title', 'purpose','property_price']
+    # search_filter_class = SearchFilter(case_insensitive=False, partial_match=False)
+    # def get_queryset(self, *args, **kwargs):
+    #     qs = super().get_queryset(*args, **kwargs)
+    #     q = self.request.GET.get('q')
+    #     results = Property.objects.none()
+    #     results = qs.search(q)
+    #     return results
     # def get_queryset(self):
     #     user = self.request.user
         
     #     if user.id == None:
     #         return Property.objects.none()
-        # 
-        # return Property.objects.all().filter(user=user)
+        
+        # return Property.objects.all().filter(owner=user)
+
     def perform_create(self, serializer):
         # point = GEOSGeometry('POINT(%s %s)'%("22332","3232"))
         # if self.request.location:
             # locationData = json.loads(self.request.location)
+        print(self.request.headers)
         if self.request.user == None:
-            serializer = serializer.save(user=self.request.user.pk)
+            serializer = serializer.save(owner=self.request.user.pk,files=self.request.FILES)
         return super().perform_create(serializer)
 class PropertyDetailView(generics.RetrieveUpdateDestroyAPIView):
     queryset = Property.objects.all()
     
     serializer_class = PropertySerializer
-    permission_classes = [IsOwnerOrReadOnly]
+    # permission_classes = [IsOwnerOrReadOnly]
     ordering_fields = ['timestamp']
     search_fields = ['property_title']
     
@@ -88,7 +94,6 @@ class PropertyDetailView(generics.RetrieveUpdateDestroyAPIView):
 class CountryListCreateView(generics.ListCreateAPIView):
     queryset = Country.objects.all()
     serializer_class = CountrySerializer
-
 class StatetListCreateView(generics.ListCreateAPIView):
     queryset = State.objects.all()
     serializer_class = StateSerializer

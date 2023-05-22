@@ -4,10 +4,10 @@ from django.contrib.gis.db import models as gis_models
 from django.db.models.signals import pre_save,post_save
 from django.utils.text import slugify
 from django.db import models
-# from accounts.models import Profile
+from accounts.models import UserAccount
 from smart_selects.db_fields import ChainedForeignKey 
 from django_countries.fields import CountryField
-
+from django.contrib.gis.geos import Point
 from django.utils.translation import gettext_lazy as _
 from django.conf import settings
 from .utils import path_file_name , img_file_name, slugify_instance_company
@@ -43,11 +43,13 @@ additional info if was dept or building or land
 #     def search(self,query=None):
 #         return self.get_queryset().search(query=query)
 
-
 class Person(models.Model):
     first = models.CharField(max_length=50)
     last = models.CharField(max_length=50)
 
+
+def upload_to(instance,filename):
+    return f'media/{filename}'
 
 class Property(models.Model):
     offer_choices = [
@@ -77,26 +79,25 @@ class Property(models.Model):
         ('mounthly','mounthly'),
         ('Yearly','Yearly')
     ]
-    # owner = models.ForeignKey(Profile, null=True, blank=True, on_delete=models.SET_NULL)    
+    owner = models.ForeignKey(UserAccount, null=True, blank=True, on_delete=models.SET_NULL)    
     property_slug = models.SlugField(null=True,blank=True) 
-    property_title = models.CharField(max_length=50)
-    # main_img = models.ImageField(upload_to=path_file_name,null=True,blank=True)
-    purpose = models.CharField(max_length=20,choices=offer_choices,null=True,blank=True) # للبيع للإيجار
-    location = gis_models.PointField(srid=4326,null=True,blank=True)
-    property_town = models.CharField(max_length=50,choices=town_choices,null=True,blank=True)# المدينة
-    rent_frequency = models.CharField(max_length=50,choices=rent_frequency_choices,null=True,blank=True)
-    ownership_type = models.CharField(max_length=20,choices=ownership_choices,null=True,blank=True) #وقف أو حر 
+    property_title = models.CharField(max_length=250)
+    coverPhoto = models.ImageField(upload_to=upload_to,null=True,blank=True)
+    purpose = models.CharField(max_length=20,null=True,blank=True) # للبيع للإيجار
+    location = gis_models.PointField(srid=4326, default=Point(15.3725629, 44.2396769))
+    property_town = models.CharField(max_length=50,default="sana'a")# المدينة
+    rent_frequency = models.CharField(max_length=50,default="monthly")
+    ownership_type = models.CharField(max_length=20,null=True,blank=True) #وقف أو حر 
     property_description = models.TextField(null=True,blank=True)
     property_area = models.ForeignKey('Country',on_delete=models.SET_NULL,null=True,blank=True) # المنطقة
-    property_town = models.CharField(max_length=50,choices=town_choices,null=True,blank=True)# المدينة
     property_price = models.IntegerField(null=True,blank=True)
-    is_negotiable = models.BooleanField(null=True,blank=True)# قابلية التفاوض
-    phone = models.CharField(max_length=50,null=True,blank=True)
+    is_negotiable = models.BooleanField(default=False)# قابلية التفاوض
+    phone = models.CharField(max_length=50,default="776278868")
     timestamp = models.DateTimeField(auto_now_add=True)
     updated = models.DateField(auto_now=True)
-    rooms = models.CharField(max_length=50,null=True,blank=True)
-    baths= models.CharField(max_length=10,null=True,blank=True)
-
+    rooms = models.CharField(max_length=50,default="2")
+    baths= models.CharField(max_length=10,default="2")
+    furnishingStatus = models.BooleanField(default=True)
     # geofence = gis_models.PolygonField(null=True,blank=True)
 
 
@@ -105,7 +106,6 @@ class Property(models.Model):
     def __str__(self):
         return self.property_title
     
-  
     class Meta:
         verbose_name = _("Property")
         verbose_name_plural = _("Properties")

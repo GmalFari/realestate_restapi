@@ -5,6 +5,14 @@ from django.contrib.auth.models import AbstractUser,BaseUserManager,PermissionsM
 
 from django.conf import settings
 from django.utils.translation import gettext as _# Create your models here
+import requests
+import json
+from django.core.files.storage import FileSystemStorage
+from django.core.management.base import BaseCommand
+from django.contrib.contenttypes.models import ContentType
+from django.contrib.auth.models import User
+from django.db import models
+from appRealestate.utils import path_file_name 
 
 class UserAccountManager(BaseUserManager):
     def create_user(self,first_name,last_name,email,password=None):
@@ -25,12 +33,12 @@ class UserAccountManager(BaseUserManager):
         Creates and saves a superuser with the given email, date of
         birth and password.
         """
-        user = self.create_user(
-            first_name,
-            last_name,
-            email,
-            password=password,
+        user = self.model(
+            first_name=first_name,
+            last_name=last_name,
+            email=email,
         )
+        user.set_password(password)
         user.is_staff = True
         user.is_superuser = True
         user.save(using=self._db)
@@ -86,3 +94,10 @@ class Profile(models.Model):
     #     abstract = True
 
     
+class Image(models.Model):
+    content_type = models.ForeignKey(ContentType, on_delete=models.CASCADE)
+    file = models.FileField(upload_to=path_file_name)
+
+    class Meta:
+        verbose_name = "Image"
+        verbose_name_plural = "Images"

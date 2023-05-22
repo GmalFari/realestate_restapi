@@ -1,0 +1,27 @@
+import os
+
+os.get
+def get_jpeg_images(directory):
+  """Get all .jpeg images in a directory.
+
+  Args:
+    directory: The directory to search.
+
+  Returns:
+    A list of all .jpeg images in the directory.
+  """
+  images = []
+  for root, _, files in os.walk(directory):
+    for file in files:
+      if file.endswith(".jpeg"):
+        images.append(os.path.join(root, file))
+
+  return images
+
+
+if __name__ == "__main__":
+  directory = "/path/to/directory"
+  images = get_jpeg_images(directory)
+
+  for image in images:
+    print(image)
