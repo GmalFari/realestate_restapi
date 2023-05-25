@@ -8,8 +8,9 @@ from rest_framework.permissions import IsAuthenticated
 from django.contrib.gis.geos import GEOSGeometry
 from rest_framework_gis.pagination import GeoJsonPagination
 from rest_framework.parsers import MultiPartParser, FormParser,FileUploadParser,JSONParser
-
+from django_filters.rest_framework import DjangoFilterBackend 
 import json
+from django.core.files import File
 from .models import( 
                     Property ,
                     Person,
@@ -33,14 +34,6 @@ from .permissions import IsOwnerOrReadOnly
 # url = "https://bayut.p.rapidapi.com/auto-complete"
 
 # querystring = {"query":"abu dhabi","hitsPerPage":"25","page":"0","lang":"en"}
-# headers = {
-# 	"X-RapidAPI-Key": "6cb10cae22mshe83ac21e4eb1de3p1897c1jsn0b3893d5488f",
-# 	"X-RapidAPI-Host": "bayut.p.rapidapi.com"
-# }
-
-# response = requests.request("GET", url, headers=headers, params=querystring)
-
-# print(response.json())
 
 class PersonListView(generics.ListCreateAPIView):
     queryset = Person.objects.all()
@@ -54,33 +47,41 @@ class PropertyListView(generics.ListCreateAPIView):
     queryset = Property.objects.all()
     # throttle_classes = [AnonRateThrottle,UserRateThrottle]
     serializer_class = PropertySerializer 
+    filter_backends=[DjangoFilterBackend]
+    parser_classes = (JSONParser, MultiPartParser,FormParser,)
+
     # pagination_class = GeoJsonPagination
     permission_classes = (permissions.IsAuthenticatedOrReadOnly,)
-    filter_fields = ['property_title','purpose', 'property_price']
+    filterset_fields = ('property_title','purpose', 'property_price','purpose','property_town')
     search_fields = ['property_title', 'purpose','property_price']
     # search_filter_class = SearchFilter(case_insensitive=False, partial_match=False)
-    # def get_queryset(self, *args, **kwargs):
-    #     qs = super().get_queryset(*args, **kwargs)
-    #     q = self.request.GET.get('q')
-    #     results = Property.objects.none()
-    #     results = qs.search(q)
-    #     return results
-    # def get_queryset(self):
-    #     user = self.request.user
-        
-    #     if user.id == None:
-    #         return Property.objects.none()
-        
-        # return Property.objects.all().filter(owner=user)
-
+    def get_queryset(self, *args, **kwargs):
+        qs =Property.objects.all()
+        print(self.args)
+        # q = self.request.query_params.get('property_title')
+        # q = self.request.GET.get('q')
+        results = Property.objects.none()
+        # results = qs.search(q)
+        # qs = qs.filter(property__property_title=q
+        # )
+        return qs
+    
     def perform_create(self, serializer):
+        print(serializer)
+        # content = serializer.validated_data.get('property_title') or None
+        # print(content)
         # point = GEOSGeometry('POINT(%s %s)'%("22332","3232"))
         # if self.request.location:
             # locationData = json.loads(self.request.location)
-        print(self.request.headers)
         if self.request.user == None:
-            serializer = serializer.save(owner=self.request.user.pk,files=self.request.FILES)
+            serializer = serializer(files=self.request.FILES)
+            print(serializer.data)
+        if self.request.status == 200:
+            print("hello")
         return super().perform_create(serializer)
+
+
+
 class PropertyDetailView(generics.RetrieveUpdateDestroyAPIView):
     queryset = Property.objects.all()
     
@@ -88,32 +89,32 @@ class PropertyDetailView(generics.RetrieveUpdateDestroyAPIView):
     # permission_classes = [IsOwnerOrReadOnly]
     ordering_fields = ['timestamp']
     search_fields = ['property_title']
-    
+    parser_classes = (JSONParser,)
+    def post(self, serializer):
+        print(self.request.FILES)
+        # content = serializer.validated_data.get('property_title') or None
+        # print(content)
+        # point = GEOSGeometry('POINT(%s %s)'%("22332","3232"))
+        # if self.request.location:
+            # locationData = json.loads(self.request.location)
+        if self.request.user != None:
+            serializer = PropertySerializer(files=self.request.FILES)
+            print(serializer.data)
+        print(serializer.data)
+
+        return serializer.data
 
 
-class CountryListCreateView(generics.ListCreateAPIView):
-    queryset = Country.objects.all()
-    serializer_class = CountrySerializer
-class StatetListCreateView(generics.ListCreateAPIView):
-    queryset = State.objects.all()
-    serializer_class = StateSerializer
-    
-class CityListCreateView(generics.ListCreateAPIView):
-    queryset = City.objects.all()
-    serializer_class = CitySerializer
+
+# class CountryListCreateView(generics.ListCreateAPIView):
+#     queryset = Country.objects.all()
+#     serializer_class = CountrySerializer
+# class StatetListCreateView(generics.ListCreateAPIView):
+#     queryset = State.objects.all()
+#     serializer_class = StateSerializer
+# class CityListCreateView(generics.ListCreateAPIView):
+#     queryset = City.objects.all()
+#     serializer_class = CitySerializer
     
 # 
 
-
-@api_view()
-@permission_classes([IsAuthenticated])
-def secret(request):
-    return Response({"message":"Secret message"})
-
-@api_view()
-@permission_classes([IsAuthenticated])
-def normal_user(request):
-    if request.user.groups.filter(name='normal_users').exists():
-        return Response({"message":"this is normal user"})
-    else:
-        return Response({'message':'not allowed in this group'})

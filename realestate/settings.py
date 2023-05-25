@@ -10,6 +10,9 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/4.1/ref/settings/
 """
 
+from dotenv import load_dotenv
+load_dotenv()
+
 from pathlib import Path
 import os
 from datetime import timedelta
@@ -42,6 +45,7 @@ INSTALLED_APPS = [
     'django_cleanup.apps.CleanupConfig',
 
     'rest_framework',
+    'django_filters',
     'rest_framework.authtoken',
     #thirdparty 
     'rest_framework_simplejwt',
@@ -52,13 +56,14 @@ INSTALLED_APPS = [
     'django.contrib.gis',
     'rest_framework_gis',    # Add this
 
-    'django_filters',
+
     'smart_selects',
     'django_countries',
 
     'accounts',
     'appRealestate',
     'debug_toolbar',
+    'drf_extra_fields',
     # 'django.contrib.gis'
 
 
@@ -107,11 +112,11 @@ WSGI_APPLICATION = 'realestate.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.contrib.gis.db.backends.postgis',
-        'NAME': 'shops', 
-        'USER': 'postgres', 
-        'PASSWORD': 'postgres',
-        'HOST': '127.0.0.1', 
-        'PORT': '5432',
+        'NAME': os.environ.get("DB_NAME"),
+        'USER': os.environ.get("DB_USER"),
+        'PASSWORD': os.environ.get("DB_PASSWORD"),
+        'HOST': os.environ.get("DB_HOST"),
+        'PORT': os.environ.get("DB_PORT"),
     }
 }
 
@@ -158,7 +163,8 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/4.1/howto/static-files/
 
 STATIC_URL = 'static/'
-
+STATICFILES_DIRS = os.path.join(BASE_DIR, 'static'),
+STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles_build', 'static')
 
 # medai 
 MEDIA_ROOT = os.path.join(os.path.join(BASE_DIR),'mediafiles')
@@ -182,12 +188,12 @@ INTERNAL_IPS = [
 
 
 REST_FRAMEWORK = {
-    'DEFAULT_PARSER_CLASSES': [
-    'rest_framework.parsers.JSONParser',
-    'rest_framework.parsers.FormParser',
-    'rest_framework.parsers.MultiPartParser',
-    'rest_framework.parsers.FileUploadParser',
-    ],
+    # 'DEFAULT_PARSER_CLASSES': [
+    # # 'rest_framework.parsers.JSONParser',
+    # # 'rest_framework.parsers.FormParser',
+    # 'rest_framework.parsers.MultiPartParser',
+    # # 'rest_framework.parsers.FileUploadParser',
+    # ],
     'DEFAULT_PERMISSION_CLASSES':[
         # 'rest_framework_simplejwt.authentication.JWTAuthentication',
         # 'rest_framework.permissions.IsAuthenticated',
@@ -203,14 +209,12 @@ REST_FRAMEWORK = {
         'rest_framework.renderers.BrowsableAPIRenderer',
     ],
     'DEFAULT_FILTER_BACKENDS': [
-        # 'django_filters.rest_framework.DjangoFilterBackend',
-        # 'rest_framework.filters.OrderingFilter',
-        # 'rest_framework.filters.SearchFilter',
         'django_filters.rest_framework.DjangoFilterBackend',
-
+        'rest_framework.filters.OrderingFilter',
+        'rest_framework.filters.SearchFilter',
     ],
     'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
-    'PAGE_SIZE': 3,
+    'PAGE_SIZE': 5,
     'DEFAULT_THROTTLE_CLASSES':[
         'rest_framework.throttling.AnonRateThrottle',
         'rest_framework.throttling.UserRateThrottle',

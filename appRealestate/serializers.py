@@ -1,13 +1,12 @@
 from rest_framework import serializers
 from rest_framework_gis import serializers as gis_serializers
 from rest_framework_gis.serializers import GeoModelSerializer
-
 from django.contrib.auth.models import User
 # from rest_framework_gis.serializers import GeoFeatureModelSerializer
-
 import bleach
 from .models import Property,Person,Country,State,City
-
+from drf_extra_fields.fields import Base64ImageField
+from django.core.files import File
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
@@ -20,6 +19,7 @@ class PersonSerializer(serializers.ModelSerializer):
 
 
 class PropertySerializer(GeoModelSerializer):
+    coverPhoto = Base64ImageField(required=False)
     # location = gis_serializers.GeometryField(help_text='GeoJSON polygon defining region')
     class Meta:
         model = Property
@@ -28,6 +28,7 @@ class PropertySerializer(GeoModelSerializer):
         # auto_bbox = True
 
         fields = '__all__'
+    
     # def get_properties(self, instance, fields):
     #         # This is a PostgreSQL HStore field, which django maps to a dict
     #     return instance.location
@@ -43,7 +44,17 @@ class PropertySerializer(GeoModelSerializer):
 
 
     #     return attrs
-
+    def create(self,validated_data):
+        # if validated_data['coverPhoto']:
+        obj = validated_data.pop('coverPhoto')
+        print(obj)
+            # print(obj)
+            # coverPhoto = validated_data.pop('coverPhoto')
+            # print(coverPhoto)
+        created_item = Property.objects.create(coverPhoto=None)
+            # created_item.coverPhoto = coverPhoto
+        created_item.save()
+        return created_item
 class CountrySerializer(serializers.ModelSerializer):
     class Meta:
         model = Country
