@@ -45,11 +45,11 @@ INSTALLED_APPS = [
     'django_cleanup.apps.CleanupConfig',
 
     'rest_framework',
+    'corsheaders',
     'django_filters',
     'rest_framework.authtoken',
     #thirdparty 
     'rest_framework_simplejwt',
-    'corsheaders',
     'rest_framework_simplejwt.token_blacklist',
     'djoser',
     'social_django',
@@ -62,7 +62,8 @@ INSTALLED_APPS = [
 
     'accounts',
     'appRealestate',
-    'debug_toolbar',
+    'requestApp',
+    # 'debug_toolbar',
     'drf_extra_fields',
     # 'django.contrib.gis'
 
@@ -78,7 +79,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    'debug_toolbar.middleware.DebugToolbarMiddleware',
+    # 'debug_toolbar.middleware.DebugToolbarMiddleware',
 
 
     'django.middleware.common.CommonMiddleware',
@@ -114,7 +115,7 @@ DATABASES = {
         'ENGINE': 'django.contrib.gis.db.backends.postgis',
         'NAME': os.environ.get("DB_NAME"),
         'USER': os.environ.get("DB_USER"),
-        'PASSWORD': os.environ.get("DB_PASSWORD"),
+        'PASSWORD': os.environ.get("DB_PASSWORD"), #postgress123.
         'HOST': os.environ.get("DB_HOST"),
         'PORT': os.environ.get("DB_PORT"),
     }
@@ -122,12 +123,12 @@ DATABASES = {
 
 # email backend
 
-EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
-EMAIL_HOST   = 'smtp.gmail.com'
-EMAIL_PORT = 587
-EMAIL_HOST_USER = 'testmail8868@gmail.com'
-EMAIL_HOST_PASSWORD = 'Password.testmail.'
-EMAIL_USE_TLS = True
+# EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+# EMAIL_HOST   = 'smtp.gmail.com'
+# EMAIL_PORT = 587
+# EMAIL_HOST_USER = 'testmail8868@gmail.com'
+# EMAIL_HOST_PASSWORD = 'Password.testmail.'
+# EMAIL_USE_TLS = True
 # Password validation
 # https://docs.djangoproject.com/en/4.1/ref/settings/#auth-password-validators
 
@@ -189,8 +190,8 @@ INTERNAL_IPS = [
 
 REST_FRAMEWORK = {
     # 'DEFAULT_PARSER_CLASSES': [
-    # # 'rest_framework.parsers.JSONParser',
-    # # 'rest_framework.parsers.FormParser',
+    # 'rest_framework.parsers.JSONParser',
+    # 'rest_framework.parsers.FormParser',
     # 'rest_framework.parsers.MultiPartParser',
     # # 'rest_framework.parsers.FileUploadParser',
     # ],
@@ -214,7 +215,7 @@ REST_FRAMEWORK = {
         'rest_framework.filters.SearchFilter',
     ],
     'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
-    'PAGE_SIZE': 5,
+    'PAGE_SIZE': 3,
     'DEFAULT_THROTTLE_CLASSES':[
         'rest_framework.throttling.AnonRateThrottle',
         'rest_framework.throttling.UserRateThrottle',
@@ -279,7 +280,7 @@ DJOSER = {
      
 }
 CORS_ORIGIN_ALLOW_ALL = True
-# CORS_ALLOW_CREDENTIALS = True
+CORS_ALLOW_CREDENTIALS = True
 # CORS_ALLOW_ALL_ORIGINS = True
 
 # CORS_ORIGIN_WHITELIST = (

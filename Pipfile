@@ -4,8 +4,7 @@ verify_ssl = true
 name = "pypi"
 
 [packages]
-django = "*"
-django-debug-toolbar = "*"
+django = "==4.2"
 bleach = "*"
 djangorestframework = "==3.12"
 djoser = "*"
@@ -14,6 +13,16 @@ requests = "*"
 asyncio = "*"
 chardet = "*"
 django-filter = "*"
+django-dotenv = "*"
+python-dotenv = "*"
+django-cleanup = "*"
+djangorestframework-gis = "*"
+django-smart-selects = "*"
+django-countries = "*"
+drf-extra-fields = "*"
+psycopg2-binary = "*"
+pytz = "*"
+pillow = "*"
 
 [dev-packages]
 
